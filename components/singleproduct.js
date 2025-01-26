@@ -19,7 +19,7 @@ const singleproduct = ({ navigation, route }) => {
       {/* Navigate to ZoomableImageScreen on image click */}
       <TouchableOpacity
         onPress={() =>
-          navigation.navigate('ZoomableImageScreen', { imageUrl: product.imageUrl })
+          navigation.navigate('ZoomableImageScreen', { imageUrl: product  .imageUrl })
         }
       >
         <Image source={{ uri: `https:${product.imageUrl}` }} style={styles.productImage} />

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-const Product = ({ product, setCart, addToWishlist }) => {
+const Product = ({ product, setCart, addToWishlist, quantity, onIncrease, onDecrease }) => {
   return (
     <View style={styles.productCard}>
       <TouchableOpacity style={styles.position} onPress={addToWishlist}>
@@ -15,12 +15,27 @@ const Product = ({ product, setCart, addToWishlist }) => {
       />
       <Text style={styles.productName}>{product.name}</Text>
       <Text style={styles.productPrice}>${product.price}</Text>
-      <Text style={styles.productDescription}>{product.description}</Text>
+      
 
       {/* Add to Cart Button */}
-      <TouchableOpacity style={styles.addToCartButton} onPress={setCart}>
-        <Text style={styles.addToCartText}>Add to Cart</Text>
-      </TouchableOpacity>
+      {quantity > 0 && (
+        <View style={styles.quantityContainer}>
+          <TouchableOpacity style={styles.quantityButton} onPress={onDecrease}>
+            <Text style={styles.quantityText}>-</Text>
+          </TouchableOpacity>
+          <Text style={styles.quantity}>{quantity}</Text>
+          <TouchableOpacity style={styles.quantityButton} onPress={onIncrease}>
+            <Text style={styles.quantityText}>+</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Add to Cart Button */}
+      {quantity === 0 && (
+        <TouchableOpacity style={styles.addToCartButton} onPress={setCart}>
+          <Text style={styles.addToCartText}>Add to Cart</Text>
+        </TouchableOpacity>
+      )}
 
      
       
@@ -35,6 +50,28 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 20,
     elevation: 3,
+  },
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    justifyContent: 'center',
+  },
+  quantityButton: {
+    backgroundColor: '#FF9900',
+    paddingHorizontal: 15,
+    paddingVertical: 5,
+    borderRadius: 10,
+    marginHorizontal: 5,
+  },
+  quantityText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  quantity: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   productImage: {
     width: '100%',
@@ -78,7 +115,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   position:{
-    paddingLeft:275, 
+    paddingLeft:285, 
   }
 });
 

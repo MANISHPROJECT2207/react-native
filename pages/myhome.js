@@ -153,7 +153,7 @@ const HomeScreen = ({ route,navigation }) => {
     })
     if(flag == true){
     
-    setcart((prevCart) => [...prevCart, {...product,quantity : 1}]); // Add product to cart
+    setcart((prevCart) => [...prevCart, {...product,quantity : 1,startTime : Date.now()}]); // Add product to cart
     console.log(cart);
     
     Alert.alert('Success', `${product.name} added to the cart!`);
@@ -209,7 +209,23 @@ const HomeScreen = ({ route,navigation }) => {
       console.error('Error saving wishlist data:', error);
     }
   };
+  const handleIncreaseQuantity = (productId) => {
+    setcart((prevCart) =>
+      prevCart.map((item) =>
+        item.id === productId ? { ...item, quantity: item.quantity + 1 } : item
+      )
+    );
+  };
 
+  const handleDecreaseQuantity = (productId) => {
+    setcart((prevCart) =>
+      prevCart
+        .map((item) =>
+          item.id === productId ? { ...item, quantity: item.quantity - 1 } : item
+        )
+        .filter((item) => item.quantity > 0) // Remove products with 0 quantity
+    );
+  };
   return (
     <View style={styles.container}>
       {/* Status Bar */}
@@ -306,19 +322,30 @@ const HomeScreen = ({ route,navigation }) => {
                 </TouchableOpacity>
               </View>
               <Text style={styles.sectionTitle}>Featured Products</Text>
-        {filteredData.length > 0 ? (
-            filteredData.map((product) => 
-            ( 
-            
+              {filteredData.length > 0 ? (
+        filteredData.map((product) => {
+          const cartItem = cart.find((item) => item.id === product.id);
+          const quantity = cartItem ? cartItem.quantity : 0;
+
+          return (
             <TouchableOpacity onPress={() => navigation.navigate('SingleProduct', {product,handleAddToCart,handleAddToWishlist})}>
-          
-              <Product key={product.id} product={product} setCart={() => handleAddToCart(product)}  addToWishlist={() => handleAddToWishlist(product)}/>
-        </TouchableOpacity>
+              <Product
+              key={product.id}
+              product={product}
+              setCart={() => handleAddToCart(product)}
+              addToWishlist={() => handleAddToWishlist(product)}
+              quantity={quantity}
+              onIncrease={() => handleIncreaseQuantity(product.id)}
+              onDecrease={() => handleDecreaseQuantity(product.id)}
+            />
+            </TouchableOpacity>
             
-            ))
-        ) : (
-          <Text>No products found</Text>
-        )}
+          );
+        })
+      ) : (
+        <Text>No products found</Text>
+      )}
+        
               
             </ScrollView>
         {

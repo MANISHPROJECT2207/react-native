@@ -25,8 +25,7 @@ export default function App() {
         <Stack.Screen name="Cart" component={Cart}/>
         <Stack.Screen name="Wishlist" component={WishlistScreen}/>
         <Stack.Screen name="SingleProduct" component={singleproduct} options={{ headerShown: false }}/>
-        <Stack.Screen name="ZoomableImageScreen" component={ZoomableImageScreen} />
-        
+        <Stack.Screen name="ZoomableImageScreen" component={ZoomableImageScreen} options={{ headerShown: false }}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Show from '../components/Show';
 
 const Cart = ({ route, navigation }) => {
     const [currcart,setcurrcart] = useState([])
@@ -106,7 +107,8 @@ const Cart = ({ route, navigation }) => {
               />
               <View style={styles.productDetails}>
                 <Text style={styles.productName}>{item.name}</Text>
-                <Text style={styles.productPrice}>${item.price}</Text>
+                
+                <Show startTime={item.startTime} price={item.price}/>
                 <View style={styles.quantityControls}>
                   <TouchableOpacity
                     style={styles.quantityButton}
@@ -183,11 +185,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  productPrice: {
-    fontSize: 14,
-    color: '#888',
-    marginVertical: 5,
-  },
+  
   quantityControls: {
     flexDirection: 'row',
     alignItems: 'center',

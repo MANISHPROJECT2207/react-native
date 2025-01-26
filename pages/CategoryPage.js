@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 
 const CategoryPage = ({ route }) => {
-  const { category } = route.params;
+  const { category,data } = route.params;
 
   return (
     <View style={styles.container}>
