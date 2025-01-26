@@ -18,6 +18,27 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const HomeScreen = ({ route,navigation }) => {
+
+    const [timeLeft, setTimeLeft] = useState(60);
+  
+    useEffect(() => {
+      // exit early when we reach 0
+      if (!timeLeft) return;
+  
+      // save intervalId to clear the interval when the
+      // component re-renders
+      const intervalId = setInterval(() => {
+        setTimeLeft(timeLeft - 1);
+      }, 1000);
+  
+      // clear interval on re-render to avoid memory leaks
+      return () => clearInterval(intervalId);
+      // add timeLeft as a dependency to re-rerun the effect
+      // when we update it
+    }, [timeLeft]);
+  
+   
+
   const categories = [
     'Electronics',
     'Fashion',
@@ -104,9 +125,10 @@ const HomeScreen = ({ route,navigation }) => {
   const [searchQuery, setSearchQuery] = useState(''); // State for search input
   const [filteredData, setFilteredData] = useState(''); // State for filtered data
   const handleAddToCart = async (product) => {
+    console.log("hello");
     
     let flag = true
-    if(cart)
+    
     cart.map(async (item)=>{
       if(item.id == product.id){
         setcart((prevCart) =>
@@ -154,7 +176,40 @@ const HomeScreen = ({ route,navigation }) => {
     }
   };
 
-    
+
+  const [wishlist, setWishlist] = useState([]); // New wishlist state
+  useEffect(() => {
+    const loadWishlist = async () => {
+      try {
+        const savedWishlist = await AsyncStorage.getItem('wishlist');
+        if (savedWishlist) {
+          setWishlist(JSON.parse(savedWishlist));
+        }
+      } catch (error) {
+        console.error('Error loading wishlist data:', error);
+      }
+    };
+
+    loadWishlist();
+  }, []);
+
+  const handleAddToWishlist = async (product) => {
+    if (wishlist.some((item) => item.id === product.id)) {
+      setWishlist((prevWishlist) => prevWishlist.filter((item) => item.id !== product.id));
+      Alert.alert('Success', `${product.name} removed from your wishlist!`);
+      return;
+    }
+
+    setWishlist((prevWishlist) => [...prevWishlist, product]);
+    Alert.alert('Success', `${product.name} added to your wishlist!`);
+
+    try {
+      await AsyncStorage.setItem('wishlist', JSON.stringify([...wishlist, product]));
+    } catch (error) {
+      console.error('Error saving wishlist data:', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Status Bar */}
@@ -191,6 +246,12 @@ const HomeScreen = ({ route,navigation }) => {
           <Icon name="shopping-cart" size={28} color="#fff" />
           <View style={styles.cartBadge}>
             <Text style={styles.cartBadgeText}>{cart.length}</Text>
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate('Wishlist', { wishlist,setWishlist,handleAddToCart,handleAddToWishlist})}>
+          <Icon name="bookmark-added" size={30} color="#fff" />
+          <View style={styles.cartBadge}>
+            <Text style={styles.cartBadgeText}>{wishlist.length}</Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -247,17 +308,31 @@ const HomeScreen = ({ route,navigation }) => {
               <Text style={styles.sectionTitle}>Featured Products</Text>
         {filteredData.length > 0 ? (
             filteredData.map((product) => 
-            ( <TouchableOpacity
-              // onPress={() => navigation.navigate(product.name, { category: 'Kids' })}
-              >
-              <Product key={product.id} product={product} setcart={() => handleAddToCart(product)}/>
-            </TouchableOpacity>
+            ( 
+            
+            <TouchableOpacity onPress={() => navigation.navigate('SingleProduct', {product,handleAddToCart,handleAddToWishlist})}>
+          
+              <Product key={product.id} product={product} setCart={() => handleAddToCart(product)}  addToWishlist={() => handleAddToWishlist(product)}/>
+        </TouchableOpacity>
+            
             ))
         ) : (
           <Text>No products found</Text>
         )}
               
             </ScrollView>
+        {
+          (timeLeft>0) ? 
+          <View style={styles.stickyFooter}>
+          <Text style={styles.footerText}>You will Get 10% Discount if you Add any Product in Your Cart Within 1 Minute.</Text>
+          <Text style={styles.footerText}>Time Left: {timeLeft}</Text>
+        </View>
+          :
+          
+          ""
+         
+        }
+            
     </View>
   );
 };
@@ -301,6 +376,20 @@ const styles = StyleSheet.create({
     padding: 10,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  stickyFooter: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#37475A',
+    padding: 15,
+    alignItems: 'center',
+  },
+  footerText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   cartBadge: {
     position: 'absolute',

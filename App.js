@@ -7,6 +7,9 @@ import CategoryPage from './pages/CategoryPage';
 import { StyleSheet, Text, View } from 'react-native';
 import myhome from './pages/myhome'
 import Cart from './pages/Cart';
+import WishlistScreen from './pages/WishlistScreen';
+import singleproduct from './components/singleproduct';
+import ZoomableImageScreen from './pages/ZoomableImageScreen';
 
 
 
@@ -20,6 +23,10 @@ export default function App() {
         <Stack.Screen name="Home" component={myhome}  options={{ headerShown: false }} />
         <Stack.Screen name="Category" component={CategoryPage} />
         <Stack.Screen name="Cart" component={Cart}/>
+        <Stack.Screen name="Wishlist" component={WishlistScreen}/>
+        <Stack.Screen name="SingleProduct" component={singleproduct} options={{ headerShown: false }}/>
+        <Stack.Screen name="ZoomableImageScreen" component={ZoomableImageScreen} />
+        
       </Stack.Navigator>
     </NavigationContainer>
   );
