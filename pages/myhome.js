@@ -17,6 +17,7 @@ import contentfulClient from '../ContentfulClient';
 import Product from '../components/Product';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ToastManager, { Toast } from "toastify-react-native";
+import { FlatList } from 'react-native-gesture-handler';
 
 const HomeScreen = ({ route,navigation }) => {
 
@@ -24,14 +25,10 @@ const HomeScreen = ({ route,navigation }) => {
     const showToasts = ({message=""}) => {
       Toast.success(message);
     };
-    
-    
-  
-   
 
   const categories = [
-    'cloth',
-    'shoe',
+    'Clothes',
+    'Shoes',
     'Electronics',
     'Toys',
     'Fashion',
@@ -268,9 +265,7 @@ const HomeScreen = ({ route,navigation }) => {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate('Wishlist', { wishlist,setWishlist,handleAddToCart,handleAddToWishlist})}>
           <Icon name="bookmark-added" size={30} color="#fff" />
-          <View style={styles.cartBadge}>
-            <Text style={styles.cartBadgeText}>{wishlist.length}</Text>
-          </View>
+          
         </TouchableOpacity>
       </View>
 
@@ -324,7 +319,45 @@ const HomeScreen = ({ route,navigation }) => {
                 </TouchableOpacity>
               </View>
               <Text style={styles.sectionTitle}>Featured Products</Text>
-              {filteredData.length > 0 ? (
+              <FlatList
+  data={filteredData}
+  numColumns={2} // Display two items per row
+  keyExtractor={(item) => item.id.toString()}
+  contentContainerStyle={{ paddingHorizontal: 0 }}
+  renderItem={({ item: product }) => {
+    const cartItem = cart.find((item) => item.id === product.id);
+    const quantity = cartItem ? cartItem.quantity : 0;
+
+    return (
+      <TouchableOpacity
+        style={{
+          flex: 1,
+          margin: 2,
+          maxWidth:  '50%', // Ensure each product takes 50% of the row width
+        }}
+        onPress={() =>
+          navigation.navigate('SingleProduct', {
+            product,
+            handleAddToCart,
+            handleAddToWishlist,
+          })
+        }
+      >
+        <Product
+          product={product}
+          setCart={() => handleAddToCart(product)}
+          addToWishlist={() => handleAddToWishlist(product)}
+          quantity={quantity}
+          press={showToasts}
+          onIncrease={() => handleIncreaseQuantity(product.id)}
+          onDecrease={() => handleDecreaseQuantity(product.id)}
+        />
+      </TouchableOpacity>
+    );
+  }}
+  ListEmptyComponent={<Text>No products found</Text>}
+/>;
+              {/* {filteredData.length > 0 ? (
         filteredData.map((product) => {
           const cartItem = cart.find((item) => item.id === product.id);
           const quantity = cartItem ? cartItem.quantity : 0;
@@ -347,7 +380,7 @@ const HomeScreen = ({ route,navigation }) => {
         })
       ) : (
         <Text>No products found</Text>
-      )}
+      )} */}
         
               
             </ScrollView>
@@ -390,7 +423,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     backgroundColor: '#fff',
     borderRadius: 8,
-    marginLeft: -15,
+    marginLeft: -45,
     marginRight: 20,
     alignItems: 'center',
     overflow: 'hidden',

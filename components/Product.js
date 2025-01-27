@@ -61,15 +61,16 @@ const Product = ({ product, setCart, addToWishlist, quantity, onIncrease, onDecr
 const styles = StyleSheet.create({
   productCard: {
     backgroundColor: '#f8f8f8',
-    padding: 20,
+    padding: 10,
     borderRadius: 10,
     marginBottom: 20,
     elevation: 3,
+    minHeight:300,
   },
   quantityContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 15,
     justifyContent: 'center',
   },
   quantityButton: {
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     borderRadius: 20,
     alignItems:'center',
-    marginInline:60,
+    marginInline:1,
     marginTop:10
   },
   addToCartText: {
@@ -131,8 +132,8 @@ const styles = StyleSheet.create({
   },
   position:{
     position: 'absolute',
-    right: 10,
-    top: 10,
+    right: 0,
+    top: 0,
     zIndex:1,
     borderRadius: 10,
     width: 50,
