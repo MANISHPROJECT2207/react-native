@@ -139,7 +139,7 @@ const Cart = ({ route, navigation }) => {
       </ScrollView>
       {currcart.length > 0 && (
         <View style={styles.cartSummary}>
-          <Text style={styles.totalText}>Total: ${calculateTotal().toFixed(2)}</Text>
+          {/*   <Text style={styles.totalText}>Total: ${calculateTotal().toFixed(2)}</Text> */}
           <TouchableOpacity
             style={styles.checkoutButton}
             onPress={() => Alert.alert('Checkout', 'Proceeding to checkout!')}

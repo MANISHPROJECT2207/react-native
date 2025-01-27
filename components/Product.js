@@ -1,11 +1,24 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity, Animated } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-const Product = ({ product, setCart, addToWishlist, quantity, onIncrease, onDecrease }) => {
+
+const Product = ({ product, setCart, addToWishlist, quantity, onIncrease, onDecrease,press }) => {
   return (
     <View style={styles.productCard}>
       <TouchableOpacity style={styles.position} onPress={addToWishlist}>
-                <Icon name="bookmark-add" size={40} color="black" />
+          {
+            (product.wish == false) ? 
+            <View>
+              
+              <Icon name="bookmark-add" size={40} color="black" />
+            </View>
+            :
+            <View>
+              <Icon name="bookmark-added" size={40} color="black" />
+
+            </View>
+          }
+                
                 
       </TouchableOpacity>
       
@@ -32,7 +45,9 @@ const Product = ({ product, setCart, addToWishlist, quantity, onIncrease, onDecr
 
       {/* Add to Cart Button */}
       {quantity === 0 && (
-        <TouchableOpacity style={styles.addToCartButton} onPress={setCart}>
+        <TouchableOpacity style={styles.addToCartButton} onPress={
+        () => (setCart(product),press({message:`${product.name} added to the cart!`}))
+        }>
           <Text style={styles.addToCartText}>Add to Cart</Text>
         </TouchableOpacity>
       )}
@@ -115,7 +130,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   position:{
-    paddingLeft:285, 
+    position: 'absolute',
+    right: 10,
+    top: 10,
+    zIndex:1,
+    borderRadius: 10,
+    width: 50,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+     
   }
 });
 

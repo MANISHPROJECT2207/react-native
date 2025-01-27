@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+
 import {
   View,
   Text,
@@ -15,37 +16,28 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import contentfulClient from '../ContentfulClient';
 import Product from '../components/Product';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import ToastManager, { Toast } from "toastify-react-native";
 
 const HomeScreen = ({ route,navigation }) => {
 
-    const [timeLeft, setTimeLeft] = useState(60);
-  
-    useEffect(() => {
-      // exit early when we reach 0
-      if (!timeLeft) return;
-  
-      // save intervalId to clear the interval when the
-      // component re-renders
-      const intervalId = setInterval(() => {
-        setTimeLeft(timeLeft - 1);
-      }, 1000);
-  
-      // clear interval on re-render to avoid memory leaks
-      return () => clearInterval(intervalId);
-      // add timeLeft as a dependency to re-rerun the effect
-      // when we update it
-    }, [timeLeft]);
+    // const [timeLeft, setTimeLeft] = useState(300);
+    const showToasts = ({message=""}) => {
+      Toast.success(message);
+    };
+    
+    
   
    
 
   const categories = [
+    'cloth',
+    'shoe',
     'Electronics',
+    'Toys',
     'Fashion',
     'Home',
     'Beauty',
     'Books',
-    'Toys',
     'Sports',
     'Groceries',
   ];
@@ -99,10 +91,13 @@ const HomeScreen = ({ route,navigation }) => {
           while(counter < response.items.length){
             resolvedProducts[counter] = {
               id: counter,
+              category: response.items[counter].fields.category,
+              root:response.items[counter].fields.root,
               name: response.items[counter].fields.internalName,
               price: response.items[counter].fields.price,
               imageUrl: response.items[counter].fields.featuredProductImage.fields.file.url,
-              description: response.items[counter].fields.description
+              description: response.items[counter].fields.description,
+              wish:false
             };
             counter++;
           }
@@ -140,7 +135,7 @@ const HomeScreen = ({ route,navigation }) => {
         );
         flag = false
         
-        Alert.alert('Success', `${product.name} added to the cart!`);
+       
         try {
           await AsyncStorage.setItem('cart', JSON.stringify(cart));
         } catch (error) {
@@ -156,7 +151,7 @@ const HomeScreen = ({ route,navigation }) => {
     setcart((prevCart) => [...prevCart, {...product,quantity : 1,startTime : Date.now()}]); // Add product to cart
     console.log(cart);
     
-    Alert.alert('Success', `${product.name} added to the cart!`);
+    
         try {
           await AsyncStorage.setItem('cart', JSON.stringify(cart));
         } catch (error) {
@@ -196,15 +191,21 @@ const HomeScreen = ({ route,navigation }) => {
   const handleAddToWishlist = async (product) => {
     if (wishlist.some((item) => item.id === product.id)) {
       setWishlist((prevWishlist) => prevWishlist.filter((item) => item.id !== product.id));
-      Alert.alert('Success', `${product.name} removed from your wishlist!`);
+      setFilteredData((prevWishlist) => prevWishlist.map((item)=>(item.id === product.id) ? {...item,wish : false}:item))
+      
+      showToasts({message:`${product.name} removed from the Wishlist!`})
       return;
     }
 
     setWishlist((prevWishlist) => [...prevWishlist, product]);
-    Alert.alert('Success', `${product.name} added to your wishlist!`);
+    setFilteredData((prevWishlist) => prevWishlist.map((item)=>(item.id === product.id) ? {...item,wish : true}:item))
+      
+    showToasts({message:`${product.name} added to the Wishlist!`})
 
     try {
       await AsyncStorage.setItem('wishlist', JSON.stringify([...wishlist, product]));
+      // setFilteredData((prevWishlist)=>[...prevWishlist,product])
+      
     } catch (error) {
       console.error('Error saving wishlist data:', error);
     }
@@ -228,6 +229,7 @@ const HomeScreen = ({ route,navigation }) => {
   };
   return (
     <View style={styles.container}>
+      <ToastManager width={330} height={100}/>
       {/* Status Bar */}
       <StatusBar backgroundColor="#0D98BA" barStyle="light-content" />
 
@@ -277,7 +279,7 @@ const HomeScreen = ({ route,navigation }) => {
        <ScrollView>
        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryMenu}>
         {categories.map((category, index) => (
-          <TouchableOpacity key={index} style={styles.categoryButton} onPress={() => navigation.navigate('Category', { category: category })}>
+          <TouchableOpacity key={index} style={styles.categoryButton} onPress={() => navigation.navigate('Category', { category: category,data:products.filter((item) => item.root == category)})}>
             <Text style={styles.categoryText}>{category}</Text>
           </TouchableOpacity>
         ))}
@@ -295,14 +297,14 @@ const HomeScreen = ({ route,navigation }) => {
               <View style={styles.categoryRow}>
                 <TouchableOpacity
                   style={styles.categoryCard}
-                  onPress={() => navigation.navigate('Category', { category: 'Mens' })}
+                  onPress={() => navigation.navigate('Category', { category: 'Men',data:products.filter((item) => item.category == 'men')})}
                 >
                   <Text style={styles.categoryTex}>Men's</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.categoryCard}
-                  onPress={() => navigation.navigate('Category', { category: 'Womens' })}
-                >
+                  onPress={() => navigation.navigate('Category', { category: 'Women',data:products.filter((item) => item.category == 'women')})}
+                 >
                   <Text style={styles.categoryTex}>Women's</Text>
                 </TouchableOpacity>
               </View>
@@ -310,13 +312,13 @@ const HomeScreen = ({ route,navigation }) => {
               <View style={styles.categoryRow}>
                 <TouchableOpacity
                   style={styles.categoryCard}
-                  onPress={() => navigation.navigate('Category', { category: 'Kids' })}
-                >
+                  onPress={() => navigation.navigate('Category', { category: 'Kids',data:products.filter((item) => item.category == 'kids')})}
+                  >
                   <Text style={styles.categoryTex}>Kids</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.categoryCard}
-                  onPress={() => navigation.navigate('Category', { category: 'Accessories' })}
+                  onPress={() => navigation.navigate('Category', { category: 'Accessories',data:products.filter((item) => item.category == 'accessories')})}
                 >
                   <Text style={styles.categoryTex}>Accessories</Text>
                 </TouchableOpacity>
@@ -335,6 +337,7 @@ const HomeScreen = ({ route,navigation }) => {
               setCart={() => handleAddToCart(product)}
               addToWishlist={() => handleAddToWishlist(product)}
               quantity={quantity}
+              press = {showToasts}
               onIncrease={() => handleIncreaseQuantity(product.id)}
               onDecrease={() => handleDecreaseQuantity(product.id)}
             />
@@ -349,10 +352,10 @@ const HomeScreen = ({ route,navigation }) => {
               
             </ScrollView>
         {
-          (timeLeft>0) ? 
+          (true) ? 
           <View style={styles.stickyFooter}>
-          <Text style={styles.footerText}>You will Get 10% Discount if you Add any Product in Your Cart Within 1 Minute.</Text>
-          <Text style={styles.footerText}>Time Left: {timeLeft}</Text>
+          <Text style={styles.footerText}>You will Get 10% Discount if you Add any Product in Cart and purchase Within 5 Minute.</Text>
+          {/* <Text style={styles.footerText}>Time Left: {timeLeft}</Text> */}
         </View>
           :
           
